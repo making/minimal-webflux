@@ -1,0 +1,15 @@
+#root {
+    padding: 5px;
+}
+
+@media (min-width: 800px) {
+    #root {
+        width: 800px;
+        padding: 30px 30px 10px;
+    }
+}
+
+.tweet {
+    padding: 5px;
+    margin: 3px;
+}
