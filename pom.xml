@@ -128,27 +128,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--<artifactId>maven-resources-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>copy-resources</id>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>copy-resources</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDirectory>${basedir}/target/classes/public</outputDirectory>-->
-                            <!--<resources>-->
-                                <!--<resource>-->
-                                    <!--<directory>${basedir}/../account-ui/build</directory>-->
-                                    <!--<filtering>false</filtering>-->
-                                <!--</resource>-->
-                            <!--</resources>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 
