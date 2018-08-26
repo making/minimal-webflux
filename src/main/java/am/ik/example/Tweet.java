@@ -3,6 +3,8 @@ package am.ik.example;
 import java.time.Instant;
 import java.util.UUID;
 
+import static am.ik.yavi.constraint.charsequence.codepoints.AsciiCodePoints.ASCII_PRINTABLE_CHARS;
+
 import am.ik.yavi.core.ConstraintViolations;
 import am.ik.yavi.core.Validator;
 import am.ik.yavi.fn.Either;
@@ -10,7 +12,8 @@ import am.ik.yavi.fn.Either;
 public class Tweet {
 	private static final Validator<Tweet> validator = Validator.builder(Tweet.class)
 			.constraint(Tweet::getUsername, "username",
-					c -> c.notBlank().lessThanOrEqual(128).pattern("[a-zA-Z0-9]+"))
+					c -> c.notBlank().lessThanOrEqual(128)
+							.codePoints(ASCII_PRINTABLE_CHARS).allIncluded())
 			.constraint(Tweet::getText, "text", c -> c.notBlank().lessThanOrEqual(64))
 			.build();
 	private UUID uuid;
