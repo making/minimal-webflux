@@ -92,8 +92,7 @@ public class AppTest {
 	public void testCountEmojiProperly() throws Exception {
 		this.testClient.post().uri("/tweets") //
 				.syncBody(new Tweet("demo",
-						IntStream.range(0, 64).mapToObj(x -> "❤️")
-								.collect(Collectors.joining())))
+						"❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜"))
 				.exchange() //
 				.expectStatus().isCreated();
 	}
