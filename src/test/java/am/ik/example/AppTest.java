@@ -89,10 +89,20 @@ public class AppTest {
 	}
 
 	@Test
+	public void testCountEmojiProperly() throws Exception {
+		this.testClient.post().uri("/tweets") //
+				.syncBody(new Tweet("demo",
+						IntStream.range(0, 64).mapToObj(x -> "❤️")
+								.collect(Collectors.joining())))
+				.exchange() //
+				.expectStatus().isCreated();
+	}
+
+	@Test
 	public void testPostTweet400() throws Exception {
 		this.testClient.post().uri("/tweets") //
 				.syncBody(new Tweet("demoです",
-						IntStream.rangeClosed(0, 64).mapToObj(Integer::toString)
+						IntStream.rangeClosed(0, 64).mapToObj(x -> "a")
 								.collect(Collectors.joining())))
 				.exchange() //
 				.expectStatus().isBadRequest() //
@@ -101,7 +111,7 @@ public class AppTest {
 					assertThat(errors.get(0).get("defaultMessage").asText())
 							.isEqualTo("\"[で, す]\" is/are not allowed for \"username\"");
 					assertThat(errors.get(1).get("defaultMessage").asText()).isEqualTo(
-							"The size of \"text\" must be less than or equal to 64");
+							"The size of \"text\" must be less than or equal to 64. The given size is 65");
 				});
 	}
 

@@ -14,7 +14,8 @@ public class Tweet {
 			.constraint(Tweet::getUsername, "username",
 					c -> c.notBlank().lessThanOrEqual(128)
 							.codePoints(ASCII_PRINTABLE_CHARS).allIncluded())
-			.constraint(Tweet::getText, "text", c -> c.notBlank().lessThanOrEqual(64))
+			.constraint(Tweet::getText, "text",
+					c -> c.notBlank().emoji().lessThanOrEqual(64))
 			.build();
 	private UUID uuid;
 	private String username;
