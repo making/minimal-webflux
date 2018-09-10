@@ -13,7 +13,7 @@ public class Tweet {
 	private static final Validator<Tweet> validator = Validator.builder(Tweet.class)
 			.constraint(Tweet::getUsername, "username",
 					c -> c.notBlank().lessThanOrEqual(128)
-							.codePoints(ASCII_PRINTABLE_CHARS).allIncluded())
+							.codePoints(ASCII_PRINTABLE_CHARS).asWhiteList())
 			.constraint(Tweet::getText, "text",
 					c -> c.notBlank().emoji().lessThanOrEqual(64))
 			.build();
