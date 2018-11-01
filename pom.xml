@@ -17,7 +17,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <java.version>1.8</java.version>
-        <spring-boot.version>2.1.0.BUILD-SNAPSHOT</spring-boot.version>
+        <spring-boot.version>2.1.1.BUILD-SNAPSHOT</spring-boot.version>
         <start-class>am.ik.example.App</start-class>
     </properties>
 
@@ -51,6 +51,11 @@
             <groupId>am.ik.yavi</groupId>
             <artifactId>yavi</artifactId>
             <version>0.0.18</version>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-postgresql</artifactId>
+            <version>1.0.0.ISSUE-10-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.davidmoten</groupId>

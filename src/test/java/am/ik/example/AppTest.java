@@ -117,9 +117,8 @@ public class AppTest {
 	private JdbcConnectionPool dataSource() {
 		JdbcConnectionPool connectionPool = JdbcConnectionPool
 				.create("jdbc:h2:mem:tweet;DB_CLOSE_DELAY=-1;", "sa", "sa");
-		Flyway flyway = new Flyway();
-		flyway.setDataSource(connectionPool);
-		flyway.setLocations("classpath:db/migration");
+		Flyway flyway = Flyway.configure().dataSource(connectionPool)
+				.locations("classpath:db/migration").load();
 		flyway.migrate();
 		return connectionPool;
 	}

@@ -35,9 +35,8 @@ public class App {
 	static DataSource dataSource() {
 		JdbcConnectionPool connectionPool = JdbcConnectionPool
 				.create("jdbc:h2:./target/tweet", "sa", "sa");
-		Flyway flyway = new Flyway();
-		flyway.setDataSource(connectionPool);
-		flyway.setLocations("classpath:db/migration");
+		Flyway flyway = Flyway.configure().dataSource(connectionPool)
+				.locations("classpath:db/migration").load();
 		flyway.migrate();
 		return connectionPool;
 	}
