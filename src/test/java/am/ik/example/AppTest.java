@@ -5,8 +5,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.flywaydb.core.Flyway;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,13 +20,12 @@ import reactor.core.publisher.Flux;
 public class AppTest {
 	private WebTestClient testClient;
 	private TweetMapper tweetMapper;
-	private JdbcConnectionPool dataSource;
 	private Instant now = Instant.now();
 
 	@Before
 	public void setUp() throws Exception {
-		this.dataSource = this.dataSource();
-		this.tweetMapper = new TweetMapper(this.dataSource);
+		this.tweetMapper = new TweetMapper(
+				App.connectionFactory("mem", "sa", "sa", "demo"));
 		RouterFunction<?> routes = new TweetHandler(tweetMapper).routes();
 		this.testClient = WebTestClient.bindToRouterFunction(routes).build();
 		this.tweetMapper.truncate()
@@ -47,7 +44,6 @@ public class AppTest {
 
 	@After
 	public void tearDown() throws Exception {
-		this.dataSource.dispose();
 	}
 
 	@Test
@@ -112,14 +108,5 @@ public class AppTest {
 					assertThat(errors.get(1).get("defaultMessage").asText()).isEqualTo(
 							"The size of \"text\" must be less than or equal to 64. The given size is 65");
 				});
-	}
-
-	private JdbcConnectionPool dataSource() {
-		JdbcConnectionPool connectionPool = JdbcConnectionPool
-				.create("jdbc:h2:mem:tweet;DB_CLOSE_DELAY=-1;", "sa", "sa");
-		Flyway flyway = Flyway.configure().dataSource(connectionPool)
-				.locations("classpath:db/migration").load();
-		flyway.migrate();
-		return connectionPool;
 	}
 }

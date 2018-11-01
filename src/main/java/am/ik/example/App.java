@@ -3,8 +3,6 @@ package am.ik.example;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.sql.DataSource;
-
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.slf4j.LoggerFactory;
@@ -19,12 +17,17 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RouterFunctions.resources;
 
+import io.r2dbc.h2.H2ConnectionConfiguration;
+import io.r2dbc.h2.H2ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactory;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.server.HttpServer;
 
 public class App {
 
-	static RouterFunction<ServerResponse> routes(DataSource dataSource) {
-		TweetMapper tweetMapper = new TweetMapper(dataSource);
+	static RouterFunction<ServerResponse> routes(ConnectionFactory connectionFactory) {
+		TweetMapper tweetMapper = new TweetMapper(connectionFactory);
 		TweetHandler tweetHandler = new TweetHandler(tweetMapper);
 		return tweetHandler.routes()
 				.andRoute(GET("/"), req -> ServerResponse
@@ -32,16 +35,32 @@ public class App {
 				.and(resources("/**", new ClassPathResource("static/")));
 	}
 
-	static DataSource dataSource() {
-		JdbcConnectionPool connectionPool = JdbcConnectionPool
-				.create("jdbc:h2:./target/tweet", "sa", "sa");
-		Flyway flyway = Flyway.configure().dataSource(connectionPool)
-				.locations("classpath:db/migration").load();
-		flyway.migrate();
-		return connectionPool;
+	static ConnectionFactory connectionFactory(String url, String username,
+			String password, String database) {
+		migrate(url, username, password, database);
+		return new H2ConnectionFactory(H2ConnectionConfiguration.builder() //
+				.url(url) //
+				.username(username) //
+				.password(password) //
+				.database(database) //
+				.build());
+	}
+
+	private static void migrate(String url, String username, String password,
+			String database) {
+		Mono.empty() //
+				.doFinally(x -> Flyway.configure()
+						.dataSource(JdbcConnectionPool.create(
+								"jdbc:h2:" + url + ":" + database, username, password))
+						.locations("classpath:db/migration") //
+						.load() //
+						.migrate()) //
+				.subscribeOn(Schedulers.single()) // run on background
+				.subscribe();
 	}
 
 	public static void main(String[] args) throws Exception {
+		System.setProperty("reactor.netty.http.server.accessLogEnabled", "true");
 		long begin = System.currentTimeMillis();
 		int port = Optional.ofNullable(System.getenv("PORT")) //
 				.map(Integer::parseInt) //
@@ -49,7 +68,8 @@ public class App {
 		HttpServer httpServer = HttpServer.create().host("0.0.0.0").port(port);
 		httpServer.route(routes -> {
 			HttpHandler httpHandler = RouterFunctions.toHttpHandler(
-					App.routes(dataSource()), HandlerStrategies.builder().build());
+					App.routes(connectionFactory("./target/tweet", "sa", "sa", "test")),
+					HandlerStrategies.builder().build());
 			routes.route(x -> true, new ReactorHttpHandlerAdapter(httpHandler));
 		}).bindUntilJavaShutdown(Duration.ofSeconds(3), disposableServer -> {
 			long elapsed = System.currentTimeMillis() - begin;

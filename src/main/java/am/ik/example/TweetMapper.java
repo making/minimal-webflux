@@ -3,44 +3,40 @@ package am.ik.example;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
-import org.davidmoten.rx.jdbc.Database;
-import org.davidmoten.rx.jdbc.pool.NonBlockingConnectionPool;
-import org.davidmoten.rx.jdbc.pool.Pools;
-
+import io.r2dbc.client.R2dbc;
+import io.r2dbc.spi.ConnectionFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class TweetMapper {
-	private Database db;
+	private final R2dbc r2dbc;
 
-	public TweetMapper(DataSource dataSource) {
-		NonBlockingConnectionPool pool = Pools.nonBlocking()
-				.maxPoolSize(Runtime.getRuntime().availableProcessors() * 5)
-				.connectionProvider(dataSource).build();
-		this.db = Database.from(pool);
+	public TweetMapper(ConnectionFactory connectionFactory) {
+		this.r2dbc = new R2dbc(connectionFactory);
 	}
 
 	public Flux<Tweet> findLatest() {
-		return Flux.from(this.db.select(
+		return this.r2dbc.withHandle(handle -> handle.createQuery(
 				"SELECT uuid, text, username, created_at FROM tweets ORDER BY created_at DESC LIMIT 30")
-				.get(rs -> new Tweet(UUID.fromString(rs.getString("uuid")),
-						rs.getString("username"), rs.getString("text"),
-						rs.getTimestamp("created_at").toInstant())));
+				.mapRow(row -> new Tweet(UUID.fromString(row.get("uuid", String.class)),
+						row.get("username", String.class), row.get("text", String.class),
+						row.get("created_at", Timestamp.class).toInstant())));
 	}
 
 	public Mono<Tweet> insert(Tweet tweet) {
-		return Flux.from(this.db.update(
+		return this.r2dbc.inTransaction(handle -> handle.createUpdate(
 				"INSERT INTO tweets(uuid, text, username, created_at) VALUES(?,?,?,?)")
-				.parameters(tweet.getUuid(), tweet.getText(), tweet.getUsername(),
-						Timestamp.from(tweet.getCreatedAt()))
-				.counts()) //
-				.map(i -> tweet) //
-				.next();
+				.bind("$1", tweet.getUuid().toString()) //
+				.bind("$2", tweet.getText()) //
+				.bind("$3", tweet.getUsername()) //
+				.bind("$4", Timestamp.from(tweet.getCreatedAt())) //
+				.execute()) //
+				.then(Mono.just(tweet));
 	}
 
-	Mono<Void> truncate() {
-		return Flux.from(this.db.update("TRUNCATE TABLE tweets").counts()).then();
+	Mono<Integer> truncate() {
+		return this.r2dbc
+				.withHandle(handle -> handle.execute("TRUNCATE TABLE tweets").next())
+				.single();
 	}
 }
