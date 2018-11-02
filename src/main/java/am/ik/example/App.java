@@ -27,11 +27,10 @@ public class App {
 
 	static RouterFunction<ServerResponse> routes(ConnectionFactory connectionFactory) {
 		TweetMapper tweetMapper = new TweetMapper(connectionFactory);
-		TweetHandler tweetHandler = new TweetHandler(tweetMapper);
 		return route()
 				.GET("/", req -> ServerResponse
 						.seeOther(req.uriBuilder().path("/index.html").build()).build())
-				.add(tweetHandler.routes())
+				.add(new TweetHandler(tweetMapper).routes())
 				.resources("/**", new ClassPathResource("static/")).build();
 	}
 
