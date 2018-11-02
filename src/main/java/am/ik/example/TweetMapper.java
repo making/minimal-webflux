@@ -36,7 +36,7 @@ public class TweetMapper {
 
 	Mono<Integer> truncate() {
 		return this.r2dbc
-				.withHandle(handle -> handle.execute("TRUNCATE TABLE tweets").next())
+				.withHandle(handle -> handle.execute("TRUNCATE TABLE tweets"))
 				.single();
 	}
 }
