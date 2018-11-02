@@ -11,11 +11,10 @@ import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RouterFunctions.resources;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RouterFunctions.toHttpHandler;
 
 import io.r2dbc.h2.H2ConnectionConfiguration;
 import io.r2dbc.h2.H2ConnectionFactory;
@@ -29,10 +28,11 @@ public class App {
 	static RouterFunction<ServerResponse> routes(ConnectionFactory connectionFactory) {
 		TweetMapper tweetMapper = new TweetMapper(connectionFactory);
 		TweetHandler tweetHandler = new TweetHandler(tweetMapper);
-		return tweetHandler.routes()
-				.andRoute(GET("/"), req -> ServerResponse
+		return route()
+				.GET("/", req -> ServerResponse
 						.seeOther(req.uriBuilder().path("/index.html").build()).build())
-				.and(resources("/**", new ClassPathResource("static/")));
+				.add(tweetHandler.routes())
+				.resources("/**", new ClassPathResource("static/")).build();
 	}
 
 	static ConnectionFactory connectionFactory(String url, String username,
@@ -67,7 +67,7 @@ public class App {
 				.orElse(8080);
 		HttpServer httpServer = HttpServer.create().host("0.0.0.0").port(port);
 		httpServer.route(routes -> {
-			HttpHandler httpHandler = RouterFunctions.toHttpHandler(
+			HttpHandler httpHandler = toHttpHandler(
 					App.routes(connectionFactory("./target/tweet", "sa", "sa", "test")),
 					HandlerStrategies.builder().build());
 			routes.route(x -> true, new ReactorHttpHandlerAdapter(httpHandler));
