@@ -25,7 +25,7 @@ public class TweetMapper {
 
 	public Mono<Tweet> insert(Tweet tweet) {
 		return this.r2dbc.inTransaction(handle -> handle.createUpdate(
-				"INSERT INTO tweets(uuid, text, username, created_at) VALUES(?,?,?,?)")
+				"INSERT INTO tweets(uuid, text, username, created_at) VALUES($1,$2,$3,$4)")
 				.bind("$1", tweet.getUuid().toString()) //
 				.bind("$2", tweet.getText()) //
 				.bind("$3", tweet.getUsername()) //
