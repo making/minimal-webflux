@@ -38,10 +38,9 @@ public class App {
 			String password, String database) {
 		migrate(url, username, password, database);
 		return new H2ConnectionFactory(H2ConnectionConfiguration.builder() //
-				.url(url) //
+				.url(url + ":" + database) //
 				.username(username) //
 				.password(password) //
-				.database(database) //
 				.build());
 	}
 
