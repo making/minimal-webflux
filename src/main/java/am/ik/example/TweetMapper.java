@@ -1,6 +1,6 @@
 package am.ik.example;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 import io.r2dbc.client.R2dbc;
@@ -20,23 +20,23 @@ public class TweetMapper {
 				"SELECT uuid, text, username, created_at FROM tweets ORDER BY created_at DESC LIMIT 30")
 				.mapRow(row -> new Tweet(UUID.fromString(row.get("uuid", String.class)),
 						row.get("username", String.class), row.get("text", String.class),
-						row.get("created_at", Timestamp.class).toInstant())));
+						Instant.ofEpochMilli(
+								row.get("created_at", Long.class)) /* WORKAROUND */)));
 	}
 
 	public Mono<Tweet> insert(Tweet tweet) {
 		return this.r2dbc.inTransaction(handle -> handle.createUpdate(
-				"INSERT INTO tweets(uuid, text, username, created_at) VALUES(?,?,?,?)")
+				"INSERT INTO tweets(uuid, text, username, created_at) VALUES($1,$2,$3,$4)")
 				.bind("$1", tweet.getUuid().toString()) //
 				.bind("$2", tweet.getText()) //
 				.bind("$3", tweet.getUsername()) //
-				.bind("$4", Timestamp.from(tweet.getCreatedAt())) //
+				.bind("$4", tweet.getCreatedAt().toEpochMilli() /* WORKAROUND */) //
 				.execute()) //
 				.then(Mono.just(tweet));
 	}
 
 	Mono<Integer> truncate() {
-		return this.r2dbc
-				.withHandle(handle -> handle.execute("TRUNCATE TABLE tweets"))
+		return this.r2dbc.withHandle(handle -> handle.execute("TRUNCATE TABLE tweets"))
 				.single();
 	}
 }
