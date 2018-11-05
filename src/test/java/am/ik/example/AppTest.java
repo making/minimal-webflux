@@ -24,8 +24,7 @@ public class AppTest {
 
 	@Before
 	public void setUp() throws Exception {
-		this.tweetMapper = new TweetMapper(
-				App.connectionFactory("mem", "sa", "sa", "demo"));
+		this.tweetMapper = new MockTweetMapper();
 		RouterFunction<?> routes = new TweetHandler(tweetMapper).routes();
 		this.testClient = WebTestClient.bindToRouterFunction(routes).build();
 		this.tweetMapper.truncate()
