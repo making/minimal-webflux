@@ -10,10 +10,10 @@ public class V1__init_table extends BaseJavaMigration {
 	public void migrate(Context context) throws Exception {
 		Connection connection = context.getConnection();
 		connection.prepareStatement("CREATE TABLE tweets (\n" + //
-				"  uuid       VARCHAR(36) PRIMARY KEY,\n" + //
+				"  uuid       UUID PRIMARY KEY,\n" + //
 				"  text       VARCHAR(255),\n" + //
 				"  username   VARCHAR(128),\n" + //
-				"  created_at BIGINT\n" + //
+				"  created_at TIMESTAMP\n" + //
 				");").execute();
 	}
 }

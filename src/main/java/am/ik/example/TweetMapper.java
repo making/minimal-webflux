@@ -18,19 +18,18 @@ public class TweetMapper {
 	public Flux<Tweet> findLatest() {
 		return this.r2dbc.withHandle(handle -> handle.createQuery(
 				"SELECT uuid, text, username, created_at FROM tweets ORDER BY created_at DESC LIMIT 30")
-				.mapRow(row -> new Tweet(UUID.fromString(row.get("uuid", String.class)),
+				.mapRow(row -> new Tweet(row.get("uuid", UUID.class),
 						row.get("username", String.class), row.get("text", String.class),
-						Instant.ofEpochMilli(
-								row.get("created_at", Long.class)) /* WORKAROUND */)));
+						row.get("created_at", Instant.class))));
 	}
 
 	public Mono<Tweet> insert(Tweet tweet) {
 		return this.r2dbc.inTransaction(handle -> handle.createUpdate(
 				"INSERT INTO tweets(uuid, text, username, created_at) VALUES($1,$2,$3,$4)")
-				.bind("$1", tweet.getUuid().toString()) //
+				.bind("$1", tweet.getUuid()) //
 				.bind("$2", tweet.getText()) //
 				.bind("$3", tweet.getUsername()) //
-				.bind("$4", tweet.getCreatedAt().toEpochMilli() /* WORKAROUND */) //
+				.bind("$4", tweet.getCreatedAt()) //
 				.execute()) //
 				.then(Mono.just(tweet));
 	}
