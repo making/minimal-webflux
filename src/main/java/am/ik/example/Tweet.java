@@ -5,17 +5,18 @@ import java.util.UUID;
 
 import static am.ik.yavi.constraint.charsequence.codepoints.AsciiCodePoints.ASCII_PRINTABLE_CHARS;
 
+import am.ik.yavi.builder.ValidatorBuilder;
 import am.ik.yavi.core.ConstraintViolations;
 import am.ik.yavi.core.Validator;
 import am.ik.yavi.fn.Either;
+import am.ik.yavi.meta.ConstraintTarget;
 
 public class Tweet {
-	private static final Validator<Tweet> validator = Validator.builder(Tweet.class)
-			.constraint(Tweet::getUsername, "username",
+	private static final Validator<Tweet> validator = ValidatorBuilder.of(Tweet.class)
+			.constraint(_TweetMeta.USERNAME,
 					c -> c.notBlank().lessThanOrEqual(128)
 							.codePoints(ASCII_PRINTABLE_CHARS).asWhiteList())
-			.constraint(Tweet::getText, "text",
-					c -> c.notBlank().emoji().lessThanOrEqual(64))
+			.constraint(_TweetMeta.TEXT, c -> c.notBlank().emoji().lessThanOrEqual(64))
 			.build();
 	private UUID uuid;
 	private String username;
@@ -45,10 +46,12 @@ public class Tweet {
 		return uuid;
 	}
 
+	@ConstraintTarget
 	public String getUsername() {
 		return username;
 	}
 
+	@ConstraintTarget
 	public String getText() {
 		return text;
 	}

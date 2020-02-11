@@ -47,7 +47,7 @@ class TweetHandler {
 	Mono<ServerResponse> createTweet(ServerRequest req) {
 		return req.bodyToMono(Tweet.class) //
 				.flatMap(body -> body.validate().fold(
-						v -> ServerResponse.badRequest().syncBody(v.details()), //
+						v -> ServerResponse.badRequest().bodyValue(v.details()), //
 						tweet -> ServerResponse.status(CREATED).body(this.tweetMapper
 								.insert(tweet).doOnSuccess(tweets::onNext),
 								Tweet.class)));

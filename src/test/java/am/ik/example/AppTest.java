@@ -67,7 +67,7 @@ public class AppTest {
 	@Test
 	public void testPostTweet201() throws Exception {
 		this.testClient.post().uri("/tweets") //
-				.syncBody(new Tweet("demo", "Demo")).exchange() //
+				.bodyValue(new Tweet("demo", "Demo")).exchange() //
 				.expectStatus().isCreated();
 
 		this.testClient.get().uri("/tweets") //
@@ -87,7 +87,7 @@ public class AppTest {
 	@Test
 	public void testCountEmojiProperly() throws Exception {
 		this.testClient.post().uri("/tweets") //
-				.syncBody(new Tweet("demo",
+				.bodyValue(new Tweet("demo",
 						"❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛"))
 				.exchange() //
 				.expectStatus().isCreated();
@@ -96,7 +96,7 @@ public class AppTest {
 	@Test
 	public void testPostTweet400() throws Exception {
 		this.testClient.post().uri("/tweets") //
-				.syncBody(new Tweet("demoです",
+				.bodyValue(new Tweet("demoです",
 						IntStream.rangeClosed(0, 64).mapToObj(x -> "a")
 								.collect(Collectors.joining())))
 				.exchange() //
