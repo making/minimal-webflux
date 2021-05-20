@@ -13,7 +13,7 @@ public class V1__init_table extends BaseJavaMigration {
 				"  uuid       VARCHAR(36) PRIMARY KEY,\n" + //
 				"  text       VARCHAR(255),\n" + //
 				"  username   VARCHAR(128),\n" + //
-				"  created_at TIMESTAMP\n" + //
+				"  created_at TIMESTAMP WITH TIME ZONE\n" + //
 				");").execute();
 	}
 }

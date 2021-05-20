@@ -5,9 +5,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 
@@ -15,15 +12,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
-public class AppTest {
+class AppTest {
 	private WebTestClient testClient;
 	private TweetMapper tweetMapper;
 	private Instant now = Instant.now();
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 		this.tweetMapper = new TweetMapper(
 				App.connectionFactory("mem", "sa", "sa", "demo"));
 		RouterFunction<?> routes = new TweetHandler(tweetMapper).routes();
@@ -42,12 +42,12 @@ public class AppTest {
 				.blockLast();
 	}
 
-	@After
-	public void tearDown() throws Exception {
+	@AfterEach
+	void tearDown() throws Exception {
 	}
 
 	@Test
-	public void testGetTweets() throws Exception {
+	void testGetTweets() throws Exception {
 		this.testClient.get().uri("/tweets") //
 				.exchange() //
 				.expectStatus().isOk() //
@@ -65,7 +65,7 @@ public class AppTest {
 	}
 
 	@Test
-	public void testPostTweet201() throws Exception {
+	void testPostTweet201() throws Exception {
 		this.testClient.post().uri("/tweets") //
 				.bodyValue(new Tweet("demo", "Demo")).exchange() //
 				.expectStatus().isCreated();
@@ -85,7 +85,7 @@ public class AppTest {
 	}
 
 	@Test
-	public void testCountEmojiProperly() throws Exception {
+	void testCountEmojiProperly() throws Exception {
 		this.testClient.post().uri("/tweets") //
 				.bodyValue(new Tweet("demo",
 						"❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛🧡💜❤️💙💚💛"))
@@ -94,7 +94,7 @@ public class AppTest {
 	}
 
 	@Test
-	public void testPostTweet400() throws Exception {
+	void testPostTweet400() throws Exception {
 		this.testClient.post().uri("/tweets") //
 				.bodyValue(new Tweet("demoです",
 						IntStream.rangeClosed(0, 64).mapToObj(x -> "a")

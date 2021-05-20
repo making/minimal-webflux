@@ -46,15 +46,12 @@ public class App {
 
 	private static void migrate(String url, String username, String password,
 			String database) {
-		Mono.empty() //
-				.doFinally(x -> Flyway.configure()
+		Flyway.configure()
 						.dataSource(JdbcConnectionPool.create(
 								"jdbc:h2:" + url + ":" + database, username, password))
 						.locations("classpath:db/migration") //
 						.load() //
-						.migrate()) //
-				.subscribeOn(Schedulers.single()) // run on background
-				.subscribe();
+						.migrate();
 	}
 
 	public static void main(String[] args) throws Exception {
