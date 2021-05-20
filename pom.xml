@@ -54,7 +54,7 @@
         <dependency>
             <groupId>am.ik.yavi</groupId>
             <artifactId>yavi</artifactId>
-            <version>0.4.0</version>
+            <version>0.6.0</version>
         </dependency>
         <dependency>
             <groupId>io.r2dbc</groupId>
@@ -131,6 +131,14 @@
     </build>
 
     <repositories>
+		<repository>
+			<id>sonatype-public</id>
+			<name>Sonatype Public</name>
+			<url>https://oss.sonatype.org/service/local/repositories/releases/content/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
         <repository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>

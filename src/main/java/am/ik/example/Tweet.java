@@ -3,13 +3,12 @@ package am.ik.example;
 import java.time.Instant;
 import java.util.UUID;
 
-import static am.ik.yavi.constraint.charsequence.codepoints.AsciiCodePoints.ASCII_PRINTABLE_CHARS;
-
 import am.ik.yavi.builder.ValidatorBuilder;
-import am.ik.yavi.core.ConstraintViolations;
+import am.ik.yavi.core.Validated;
 import am.ik.yavi.core.Validator;
-import am.ik.yavi.fn.Either;
 import am.ik.yavi.meta.ConstraintTarget;
+
+import static am.ik.yavi.constraint.charsequence.codepoints.AsciiCodePoints.ASCII_PRINTABLE_CHARS;
 
 public class Tweet {
 	private static final Validator<Tweet> validator = ValidatorBuilder.of(Tweet.class)
@@ -60,7 +59,7 @@ public class Tweet {
 		return createdAt;
 	}
 
-	public Either<ConstraintViolations, Tweet> validate() {
-		return validator.validateToEither(this);
+	public Validated<Tweet> validate() {
+		return validator.applicative().validate(this);
 	}
 }

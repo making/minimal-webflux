@@ -1,5 +1,6 @@
 package am.ik.example;
 
+import am.ik.yavi.core.ConstraintViolations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -47,7 +48,7 @@ class TweetHandler {
 	Mono<ServerResponse> createTweet(ServerRequest req) {
 		return req.bodyToMono(Tweet.class) //
 				.flatMap(body -> body.validate().fold(
-						v -> ServerResponse.badRequest().bodyValue(v.details()), //
+						v -> ServerResponse.badRequest().bodyValue(ConstraintViolations.of(v).details()), //
 						tweet -> ServerResponse.status(CREATED).body(this.tweetMapper
 								.insert(tweet).doOnSuccess(tweets::onNext),
 								Tweet.class)));
