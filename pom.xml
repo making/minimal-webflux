@@ -131,14 +131,6 @@
     </build>
 
     <repositories>
-		<repository>
-			<id>sonatype-public</id>
-			<name>Sonatype Public</name>
-			<url>https://oss.sonatype.org/service/local/repositories/releases/content/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
         <repository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>
